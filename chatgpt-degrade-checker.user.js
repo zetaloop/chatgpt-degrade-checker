@@ -16,24 +16,28 @@
 (function() {
     'use strict';
 
-    // 创建显示框
-    const displayBox = document.createElement('div');
-    displayBox.style.position = 'fixed';
-    displayBox.style.top = '50%';
-    displayBox.style.right = '20px';
-    displayBox.style.transform = 'translateY(-50%)';
-    displayBox.style.width = '220px';
-    displayBox.style.padding = '10px';
-    displayBox.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-    displayBox.style.color = '#fff';
-    displayBox.style.fontSize = '14px';
-    displayBox.style.borderRadius = '8px';
-    displayBox.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.3)';
-    displayBox.style.zIndex = '10000';
-    displayBox.style.transition = 'all 0.3s ease';
-    displayBox.style.display = 'none';
+    function createElements() {
+        if (document.getElementById('degrade-checker-displayBox')) return;
 
-    displayBox.innerHTML = `
+        // 创建显示框
+        const displayBox = document.createElement('div');
+        displayBox.id = 'degrade-checker-displayBox';
+        displayBox.style.position = 'fixed';
+        displayBox.style.top = '50%';
+        displayBox.style.right = '20px';
+        displayBox.style.transform = 'translateY(-50%)';
+        displayBox.style.width = '220px';
+        displayBox.style.padding = '10px';
+        displayBox.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+        displayBox.style.color = '#fff';
+        displayBox.style.fontSize = '14px';
+        displayBox.style.borderRadius = '8px';
+        displayBox.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.3)';
+        displayBox.style.zIndex = '10000';
+        displayBox.style.transition = 'all 0.3s ease';
+        displayBox.style.display = 'none';
+
+        displayBox.innerHTML = `
         <div style="margin-bottom: 10px;">
             <strong>PoW 信息</strong>
         </div>
@@ -66,28 +70,28 @@
         ">
             ChatGPT Degrade Checker
     </div>`;
-    document.body.appendChild(displayBox);
+        document.body.appendChild(displayBox);
 
-    // 创建收缩状态的指示器
-    const collapsedIndicator = document.createElement('div');
-    collapsedIndicator.style.position = 'fixed';
-    collapsedIndicator.style.top = '50%';
-    collapsedIndicator.style.right = '20px';
-    collapsedIndicator.style.transform = 'translateY(-50%)';
-    collapsedIndicator.style.width = '32px';
-    collapsedIndicator.style.height = '32px';
-    collapsedIndicator.style.backgroundColor = 'transparent';
-    collapsedIndicator.style.borderRadius = '50%';
-    collapsedIndicator.style.cursor = 'pointer';
-    collapsedIndicator.style.zIndex = '10000';
-    collapsedIndicator.style.padding = '4px';
-    collapsedIndicator.style.display = 'flex';
-    collapsedIndicator.style.alignItems = 'center';
-    collapsedIndicator.style.justifyContent = 'center';
-    collapsedIndicator.style.transition = 'all 0.3s ease';
+        // 创建收缩状态的指示器
+        const collapsedIndicator = document.createElement('div');
+        collapsedIndicator.style.position = 'fixed';
+        collapsedIndicator.style.top = '50%';
+        collapsedIndicator.style.right = '20px';
+        collapsedIndicator.style.transform = 'translateY(-50%)';
+        collapsedIndicator.style.width = '32px';
+        collapsedIndicator.style.height = '32px';
+        collapsedIndicator.style.backgroundColor = 'transparent';
+        collapsedIndicator.style.borderRadius = '50%';
+        collapsedIndicator.style.cursor = 'pointer';
+        collapsedIndicator.style.zIndex = '10000';
+        collapsedIndicator.style.padding = '4px';
+        collapsedIndicator.style.display = 'flex';
+        collapsedIndicator.style.alignItems = 'center';
+        collapsedIndicator.style.justifyContent = 'center';
+        collapsedIndicator.style.transition = 'all 0.3s ease';
 
-    // 使用SVG作为指示器
-    collapsedIndicator.innerHTML = `
+        // 使用SVG作为指示器
+        collapsedIndicator.innerHTML = `
     <svg id="status-icon" width="32" height="32" viewBox="0 0 64 64" style="transition: all 0.3s ease;">
         <defs>
             <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -130,60 +134,74 @@
             </circle>
         </g>
     </svg>`;
-    document.body.appendChild(collapsedIndicator);
+        document.body.appendChild(collapsedIndicator);
 
-    // 鼠标悬停事件
-    collapsedIndicator.addEventListener('mouseenter', function() {
-        displayBox.style.display = 'block';
-        collapsedIndicator.style.opacity = '0';
-    });
+        // 鼠标悬停事件
+        collapsedIndicator.addEventListener('mouseenter', function() {
+            displayBox.style.display = 'block';
+            collapsedIndicator.style.opacity = '0';
+        });
 
-    displayBox.addEventListener('mouseleave', function() {
-        displayBox.style.display = 'none';
-        collapsedIndicator.style.opacity = '1';
-    });
+        displayBox.addEventListener('mouseleave', function() {
+            displayBox.style.display = 'none';
+            collapsedIndicator.style.opacity = '1';
+        });
 
-    // 创建提示框
-    const tooltip = document.createElement('div');
-    tooltip.id = 'tooltip';
-    tooltip.innerText = '这个值越小，代表PoW难度越高，ChatGPT认为你的IP风险越高。';
-    tooltip.style.position = 'fixed';
-    tooltip.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
-    tooltip.style.color = '#fff';
-    tooltip.style.padding = '8px 12px';
-    tooltip.style.borderRadius = '5px';
-    tooltip.style.fontSize = '12px';
-    tooltip.style.visibility = 'hidden';
-    tooltip.style.zIndex = '10001';
-    tooltip.style.width = '240px';
-    tooltip.style.lineHeight = '1.4';
-    tooltip.style.pointerEvents = 'none';
-    document.body.appendChild(tooltip);
-
-    // 显示提示
-    document.getElementById('difficulty-tooltip').addEventListener('mouseenter', function(event) {
-        tooltip.style.visibility = 'visible';
-
-        const tooltipWidth = 240;
-        const windowWidth = window.innerWidth;
-        const mouseX = event.clientX;
-        const mouseY = event.clientY;
-
-        let leftPosition = mouseX - tooltipWidth - 10;
-        if (leftPosition < 10) {
-            leftPosition = mouseX + 20;
-        }
-
-        let topPosition = mouseY - 40;
-
-        tooltip.style.left = `${leftPosition}px`;
-        tooltip.style.top = `${topPosition}px`;
-    });
-
-    // 隐藏提示
-    document.getElementById('difficulty-tooltip').addEventListener('mouseleave', function() {
+        // 创建提示框
+        const tooltip = document.createElement('div');
+        tooltip.id = 'tooltip';
+        tooltip.innerText = '这个值越小，代表PoW难度越高，ChatGPT认为你的IP风险越高。';
+        tooltip.style.position = 'fixed';
+        tooltip.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+        tooltip.style.color = '#fff';
+        tooltip.style.padding = '8px 12px';
+        tooltip.style.borderRadius = '5px';
+        tooltip.style.fontSize = '12px';
         tooltip.style.visibility = 'hidden';
+        tooltip.style.zIndex = '10001';
+        tooltip.style.width = '240px';
+        tooltip.style.lineHeight = '1.4';
+        tooltip.style.pointerEvents = 'none';
+        document.body.appendChild(tooltip);
+
+        // 显示提示
+        document.getElementById('difficulty-tooltip').addEventListener('mouseenter', function(event) {
+            tooltip.style.visibility = 'visible';
+
+            const tooltipWidth = 240;
+            const windowWidth = window.innerWidth;
+            const mouseX = event.clientX;
+            const mouseY = event.clientY;
+
+            let leftPosition = mouseX - tooltipWidth - 10;
+            if (leftPosition < 10) {
+                leftPosition = mouseX + 20;
+            }
+
+            let topPosition = mouseY - 40;
+
+            tooltip.style.left = `${leftPosition}px`;
+            tooltip.style.top = `${topPosition}px`;
+        });
+
+        // 隐藏提示
+        document.getElementById('difficulty-tooltip').addEventListener('mouseleave', function() {
+            tooltip.style.visibility = 'hidden';
+        });
+    }
+
+    // 创建元素
+    createElements();
+
+    // 使用 MutationObserver 观测 DOM 改动
+    const observer = new MutationObserver((mutationsList, observer) => {
+        // 保持检测器元素
+        if (!document.getElementById('degrade-checker-displayBox')) {
+            createElements();
+        }
     });
+
+    observer.observe(document.body, { childList: true, subtree: true });
 
     // 更新difficulty指示器
     function updateDifficultyIndicator(difficulty) {
