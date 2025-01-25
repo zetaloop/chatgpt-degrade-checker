@@ -261,10 +261,12 @@
 
     // 拦截 fetch 请求
     const originalFetch = window.fetch;
-    window.fetch = async function(resource, options) {
+    window.fetch = async function(resource, options = {}) {
+        const url = (typeof resource === 'string' ? resource : resource?.url) || '';
+        const method = (options.method || 'GET').toUpperCase();
         const response = await originalFetch(resource, options);
 
-        if ((resource.includes('/backend-api/sentinel/chat-requirements')||resource.includes('backend-anon/sentinel/chat-requirements')) && options.method === 'POST') {
+        if ((url.includes('/backend-api/sentinel/chat-requirements')||url.includes('backend-anon/sentinel/chat-requirements')) && method === 'POST') {
             const clonedResponse = response.clone();
             clonedResponse.json().then(data => {
                 const difficulty = data.proofofwork ? data.proofofwork.difficulty : 'N/A';
