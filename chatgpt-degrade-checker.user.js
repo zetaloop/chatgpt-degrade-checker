@@ -262,27 +262,59 @@
     // 拦截 fetch 请求
     const originalFetch = window.fetch;
     window.fetch = async function(resource, options = {}) {
-        const url = (typeof resource === 'string' ? resource : resource?.url) || '';
-        const method = (options.method || 'GET').toUpperCase();
+        const requestUrl = typeof resource === 'string' ? resource : resource.url;
+        const requestMethod = (typeof resource === 'object' && resource.method) ? resource.method : (options?.method || 'GET');
+        const finalMethod = requestMethod.toUpperCase();
         const response = await originalFetch(resource, options);
 
-        if ((url.includes('/backend-api/sentinel/chat-requirements')||url.includes('backend-anon/sentinel/chat-requirements')) && method === 'POST') {
-            const clonedResponse = response.clone();
-            clonedResponse.json().then(data => {
+        if ((requestUrl.includes('/backend-api/sentinel/chat-requirements') || requestUrl.includes('/backend-anon/sentinel/chat-requirements')) &&
+            finalMethod === 'POST' &&
+            response.ok) {
+
+            let responseBodyText;
+            try {
+                responseBodyText = await response.text();
+                const data = JSON.parse(responseBodyText);
                 const difficulty = data.proofofwork ? data.proofofwork.difficulty : 'N/A';
                 const persona = data.persona || 'N/A';
-                document.getElementById('difficulty').innerText = difficulty;
+                const difficultyElement = document.getElementById('difficulty');
+                if (difficultyElement) difficultyElement.innerText = difficulty;
 
                 const personaContainer = document.getElementById('persona-container');
-                if (persona && !persona.toLowerCase().includes('free')) {
-                    personaContainer.style.display = 'block';
-                    document.getElementById('persona').innerText = persona;
-                } else {
-                    personaContainer.style.display = 'none';
+                const personaElement = document.getElementById('persona');
+                if (personaContainer && personaElement) {
+                    if (persona && typeof persona === 'string' && persona !== 'N/A' && !persona.toLowerCase().includes('free')) {
+                        personaContainer.style.display = 'block';
+                        personaElement.innerText = persona;
+                    } else {
+                        personaContainer.style.display = 'none';
+                    }
                 }
-
                 updateDifficultyIndicator(difficulty);
-            }).catch(e => console.error('解析响应时出错:', e));
+
+                return new Response(responseBodyText, {
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: response.headers
+                });
+
+            } catch (e) {
+                console.error('[DegradeChecker] 处理响应或重新创建响应时出错:', e);
+                const difficultyElement = document.getElementById('difficulty');
+                if (difficultyElement) difficultyElement.innerText = 'N/A';
+                updateDifficultyIndicator('N/A');
+                const personaContainer = document.getElementById('persona-container');
+                if (personaContainer) personaContainer.style.display = 'none';
+
+                if (typeof responseBodyText === 'string') {
+                    return new Response(responseBodyText, {
+                        status: response.status,
+                        statusText: response.statusText,
+                        headers: response.headers
+                    });
+                }
+                return response;
+            }
         }
         return response;
     };
