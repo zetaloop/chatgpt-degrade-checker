@@ -1,3 +1,5 @@
+> Forked from [KoriIku/chatgpt-degrade-checker](https://github.com/KoriIku/chatgpt-degrade-checker), and fixed some bugs.
+
 # ChatGPT Service Downgrade Detection Tool Next
 
 This tool helps detect if ChatGPT has limited access to certain features on your account by downgrading service due to a "high-risk" IP designation. Users encountering issues like the inability to generate images with GPT-4, limited web search access, or simplified responses from GPT-3.5 may benefit from running this script to identify potential downgrades.
