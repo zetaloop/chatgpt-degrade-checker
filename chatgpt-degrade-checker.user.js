@@ -17,6 +17,11 @@
     "use strict";
 
     function createElements() {
+        if (!document.body) {
+            requestAnimationFrame(createElements);
+            return;
+        }
+
         if (document.getElementById("degrade-checker-displayBox")) return;
 
         // 创建显示框
@@ -206,7 +211,14 @@
         }
     });
 
-    observer.observe(document.body, { childList: true, subtree: true });
+    function startObserverWhenReady() {
+        if (!document.body) {
+            requestAnimationFrame(startObserverWhenReady);
+            return;
+        }
+        observer.observe(document.body, { childList: true, subtree: true });
+    }
+    startObserverWhenReady();
 
     // 更新difficulty指示器
     function updateDifficultyIndicator(difficulty) {
