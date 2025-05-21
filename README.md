@@ -1,11 +1,11 @@
-# ChatGPT Service Downgrade Detection Tool
+# ChatGPT Service Downgrade Detection Tool (fixed version)
 
 This tool helps detect if ChatGPT has limited access to certain features on your account by downgrading service due to a "high-risk" IP designation. Users encountering issues like the inability to generate images with GPT-4, limited web search access, or simplified responses from GPT-3.5 may benefit from running this script to identify potential downgrades.
 
 ## Installation and Usage
 1. First, install Tampermonkey: https://www.tampermonkey.net/
 
-2. Then, click this link to install the tool: [Click to Install](https://update.greasyfork.org/scripts/516051/ChatGPT%E9%99%8D%E7%BA%A7%E6%A3%80%E6%B5%8B.user.js)
+2. Then, click this link to install the tool: [Click to Install](https://github.com/zetaloop/chatgpt-degrade-checker/raw/refs/heads/main/chatgpt-degrade-checker.user.js)
 
 3. After installation, open [ChatGPT](https://chatgpt.com/). A green circle will appear on the right side of the screen. Hover over it to view diagnostic details. If the Proof of Work (PoW) difficulty displayed is unusually low, it may suggest that your IP has been flagged, which could result in limited access to certain features.
 
@@ -30,7 +30,7 @@ For users experiencing sudden changes in ChatGPT functionality—like missing im
 ## 安装及使用
 1. 首先安装 tampermonkey：https://www.tampermonkey.net/
 
-2. 然后点击链接安装本工具： [点此安装](https://update.greasyfork.org/scripts/516051/ChatGPT%E9%99%8D%E7%BA%A7%E6%A3%80%E6%B5%8B.user.js)
+2. 然后点击链接安装本工具： [点此安装](https://github.com/zetaloop/chatgpt-degrade-checker/raw/refs/heads/main/chatgpt-degrade-checker.user.js)
 
 3. 安装完成后打开 [chatgpt](https://chatgpt.com/)，你可以在屏幕右侧看到一个绿色圆圈，鼠标移上去之后会显示详细信息，如果 PoW 难度的值很低，代表你的 ip 可能被判断为了高风险。
 
