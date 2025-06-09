@@ -66,7 +66,7 @@
             <span id="persona-container" style="display: none">用户类型: <span id="persona">N/A</span></span>
         </div>
         <div id="codex-section" style="margin-top: 10px; display: none">
-            <div style="margin-bottom: 6px;"><strong>Codex 额度</strong></div>
+            <div style="margin-bottom: 10px;"><strong>Codex 额度</strong></div>
             <div id="codex-progress-bg" style="width: 100%; height: 8px; background: #555; border-radius: 4px;">
                 <div id="codex-progress-bar" style="height: 100%; width: 0%; background: #C26FFD; border-radius: 4px;"></div>
             </div>
@@ -314,6 +314,11 @@
         bar.style.width = `${percent}%`;
         bar.style.background = "#C26FFD";
         section.style.display = "block";
+        if (!powFetched) {
+            section.style.marginTop = "0";
+        } else {
+            section.style.marginTop = "10px";
+        }
         codexResetTime = Date.now() + resetsAfter * 1000;
         codexFetched = true;
         if (!powFetched) {
