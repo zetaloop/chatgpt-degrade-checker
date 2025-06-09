@@ -4,7 +4,7 @@
 // @homepage     https://github.com/zetaloop/chatgpt-degrade-checker-next
 // @author       zetaloop
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHBhdGggZmlsbD0iIzJjM2U1MCIgZD0iTTMyIDJDMTUuNDMyIDIgMiAxNS40MzIgMiAzMnMxMy40MzIgMzAgMzAgMzAgMzAtMTMuNDMyIDMwLTMwUzQ4LjU2OCAyIDMyIDJ6bTAgNTRjLTEzLjIzMyAwLTI0LTEwLjc2Ny0yNC0yNFMxOC43NjcgOCAzMiA4czI0IDEwLjc2NyAyNCAyNFM0NS4yMzMgNTYgMzIgNTZ6Ii8+PHBhdGggZmlsbD0iIzNkYzJmZiIgZD0iTTMyIDEyYy0xMS4wNDYgMC0yMCA4Ljk1NC0yMCAyMHM4Ljk1NCAyMCAyMCAyMCAyMC04Ljk1NCAyMC0yMFM0My4wNDYgMTIgMzIgMTJ6bTAgMzZjLTguODM3IDAtMTYtNy4xNjMtMTYtMTZzNy4xNjMtMTYgMTYtMTYgMTYgNy4xNjMgMTYgMTZTNDAuODM3IDQ4IDMyIDQ4eiIvPjxwYXRoIGZpbGw9IiMwMGZmN2YiIGQ9Ik0zMiAyMGMtNi42MjcgMC0xMiA1LjM3My0xMiAxMnM1LjM3MyAxMiAxMiAxMiAxMi01LjM3MyAxMi0xMlMzOC42MjcgMjAgMzIgMjB6bTAgMjBjLTQuNDE4IDAtOC0zLjU4Mi04LThzMy41ODItOCA4LTggOCAzLjU4MiA4IDgtMy41ODIgOC04IDh6Ii8+PGNpcmNsZSBmaWxsPSIjZmZmIiBjeD0iMzIiIGN5PSIzMiIgcj0iNCIvPjwvc3ZnPg==
-// @version      2.1.0
+// @version      2.2.0
 // @description  由于 ChatGPT 会对某些 ip 进行无提示的服务降级，此脚本用于检测你的 ip 在 ChatGPT 数据库中的风险等级。
 // @match        *://chatgpt.com/*
 // @grant        none
@@ -67,7 +67,7 @@
             <div id="codex-section" style="margin-top: 10px; display: none">
                 <div style="margin-bottom: 6px;"><strong>Codex 额度</strong></div>
                 <div id="codex-progress-bg" style="width: 100%; height: 8px; background: #555; border-radius: 4px;">
-                    <div id="codex-progress-bar" style="height: 100%; width: 0%; background: #4caf50; border-radius: 4px;"></div>
+                    <div id="codex-progress-bar" style="height: 100%; width: 0%; background: #9c27b0; border-radius: 4px;"></div>
                 </div>
                 <div id="codex-info" style="margin-top: 4px; font-size: 12px;">N/A</div>
             </div>
@@ -287,6 +287,8 @@
 
     // 更新 Codex 额度进度条
     let codexResetTime = null;
+    let codexLimit = null;
+    let codexUsed = null;
     function updateCodexInfo(limit, remaining, resetsAfter) {
         const section = document.getElementById("codex-section");
         const bar = document.getElementById("codex-progress-bar");
@@ -298,22 +300,26 @@
             return;
         }
 
-        const used = limit - remaining;
-        const percent = Math.max(0, Math.min(100, (used / limit) * 100));
+        codexLimit = limit;
+        codexUsed = limit - remaining;
+        const percent = Math.max(0, Math.min(100, (codexUsed / limit) * 100));
         bar.style.width = `${percent}%`;
+        bar.style.background = "#9c27b0";
         section.style.display = "block";
         codexResetTime = Date.now() + resetsAfter * 1000;
-        info.innerText = `已用 ${used}/${limit}`;
+        updateCodexCountdown();
     }
 
     function updateCodexCountdown() {
         const info = document.getElementById("codex-info");
         if (!info || !codexResetTime) return;
-        const remaining = Math.max(0, Math.floor((codexResetTime - Date.now()) / 1000));
-        const minutes = Math.floor(remaining / 60);
-        const seconds = remaining % 60;
-        info.innerText = info.innerText.replace(/重置.*$/, "") +
-            `，重置倒计时 ${minutes}:${seconds.toString().padStart(2, "0")}`;
+        if (codexLimit === null || codexUsed === null) return;
+        const remainingSecs = Math.max(0, Math.floor((codexResetTime - Date.now()) / 1000));
+        const minutes = Math.floor(remainingSecs / 60);
+        const seconds = remainingSecs % 60;
+        info.innerText = `已用 ${codexUsed}/${codexLimit}，重置倒计时 ${minutes}:${seconds
+            .toString()
+            .padStart(2, "0")}`;
     }
     setInterval(updateCodexCountdown, 1000);
 
