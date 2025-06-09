@@ -15,6 +15,9 @@ This tool helps detect if ChatGPT has limited access to certain features on your
 
    _(Note: PoW levels can vary even for the same IP. For example, after completing a higher difficulty PoW, the next one may be slightly easier, although it typically won’t drop to “simple.”)_
 
+### Codex Usage Tracking
+When visiting `https://chatgpt.com/codex`, the PoW endpoint is unavailable. The userscript now reads the Wham rate-limit API and displays a progress bar showing how many Codex tasks you have used and how long until the quota resets.
+
 ## What Is a Service Downgrade?
 When certain IPs are flagged as high-risk, ChatGPT may silently downgrade access by switching to a lower-tier model, such as the 4o-mini variant or a simpler model, without notifying the user.
 
@@ -39,6 +42,9 @@ For users experiencing sudden changes in ChatGPT functionality—like missing im
 作为参考，这个值在超过 5 位时，一般代表你的ip较为优质，可以正常使用所有服务，如果小于等于 000032，说明你的 ip 被认为有很高的风险。
 
 （更详细的区分尚不清晰，我简单测试了几个 ip，发现即便对同一个 ip，其要求的 PoW 也很容易变动，例如，如果已经完成了一个较困难的 PoW，下一次的 PoW 难度就会稍稍降低，但不会降低到“简单”级别。）
+
+### Codex 使用量
+访问 `https://chatgpt.com/codex` 时无法获取 PoW 信息，脚本会调用 Wham 接口显示 Codex 当前额度，并以进度条展示剩余次数和重置倒计时。
 
 ## 什么是服务降级？
 ChatGPT 会对一些被判断为高风险的 ip 降级服务，偷偷将模型切换为 4o-mini 或者更差，并且**没有任何提示**。

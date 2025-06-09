@@ -64,6 +64,13 @@
             ">?</span><br>
             IP质量: <span id="ip-quality">N/A</span><br>
             <span id="persona-container" style="display: none">用户类型: <span id="persona">N/A</span></span>
+            <div id="codex-section" style="margin-top: 10px; display: none">
+                <div style="margin-bottom: 6px;"><strong>Codex 额度</strong></div>
+                <div id="codex-progress-bg" style="width: 100%; height: 8px; background: #555; border-radius: 4px;">
+                    <div id="codex-progress-bar" style="height: 100%; width: 0%; background: #4caf50; border-radius: 4px;"></div>
+                </div>
+                <div id="codex-info" style="margin-top: 4px; font-size: 12px;">N/A</div>
+            </div>
         </div>
         <div style="
             margin-top: 12px;
@@ -199,6 +206,9 @@
             .addEventListener("mouseleave", function () {
                 tooltip.style.visibility = "hidden";
             });
+
+        // Codex 信息
+        fetchCodexLimitIfNeeded();
     }
 
     // 创建元素
@@ -276,6 +286,49 @@
             <stop offset="100%" style="stop-color:${secondaryColor};stop-opacity:1" />
         `;
     }
+
+    // 更新 Codex 额度进度条
+    let codexResetTime = null;
+    function updateCodexInfo(limit, remaining, resetsAfter) {
+        const section = document.getElementById("codex-section");
+        const bar = document.getElementById("codex-progress-bar");
+        const info = document.getElementById("codex-info");
+        if (!section || !bar || !info) return;
+
+        if (typeof limit !== "number" || typeof remaining !== "number") {
+            section.style.display = "none";
+            return;
+        }
+
+        const used = limit - remaining;
+        const percent = Math.max(0, Math.min(100, (used / limit) * 100));
+        bar.style.width = `${percent}%`;
+        section.style.display = "block";
+        codexResetTime = Date.now() + resetsAfter * 1000;
+        info.innerText = `已用 ${used}/${limit}`;
+    }
+
+    function updateCodexCountdown() {
+        const info = document.getElementById("codex-info");
+        if (!info || !codexResetTime) return;
+        const remaining = Math.max(0, Math.floor((codexResetTime - Date.now()) / 1000));
+        const minutes = Math.floor(remaining / 60);
+        const seconds = remaining % 60;
+        info.innerText = info.innerText.replace(/重置.*$/, "") +
+            `，重置倒计时 ${minutes}:${seconds.toString().padStart(2, "0")}`;
+    }
+
+    function fetchCodexLimitIfNeeded() {
+        if (!location.pathname.startsWith("/codex")) return;
+        fetch("/backend-api/wham/tasks/rate_limit")
+            .then((r) => r.json())
+            .then((d) => {
+                updateCodexInfo(d.limit, d.remaining, d.resets_after);
+            })
+            .catch((e) => console.error("[DegradeChecker] 获取Codex额度失败", e));
+    }
+
+    setInterval(updateCodexCountdown, 1000);
 
     // 拦截 fetch 请求
     const originalFetch = window.fetch;
