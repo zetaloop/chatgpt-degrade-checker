@@ -8,6 +8,7 @@
 // @description  由于 ChatGPT 会对某些 ip 进行无提示的服务降级，此脚本用于检测你的 ip 在 ChatGPT 数据库中的风险等级。
 // @match        *://chatgpt.com/*
 // @grant        none
+// @run-at       document-start
 // @downloadURL  https://github.com/zetaloop/chatgpt-degrade-checker-next/raw/refs/heads/main/chatgpt-degrade-checker.user.js
 // @updateURL    https://github.com/zetaloop/chatgpt-degrade-checker-next/raw/refs/heads/main/chatgpt-degrade-checker.user.js
 // @license AGPLv3
