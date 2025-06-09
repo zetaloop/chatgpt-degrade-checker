@@ -44,10 +44,10 @@
         displayBox.style.display = "none";
 
         displayBox.innerHTML = `
-        <div style="margin-bottom: 10px;">
-            <strong>PoW 信息</strong>
-        </div>
-        <div id="content">
+        <div id="pow-section">
+            <div style="margin-bottom: 10px;">
+                <strong>PoW 信息</strong>
+            </div>
             PoW难度: <span id="difficulty">N/A</span><span id="difficulty-level" style="margin-left: 3px"></span>
             <span id="difficulty-tooltip" style="
                 cursor: pointer;
@@ -64,13 +64,13 @@
             ">?</span><br>
             IP质量: <span id="ip-quality">N/A</span><br>
             <span id="persona-container" style="display: none">用户类型: <span id="persona">N/A</span></span>
-            <div id="codex-section" style="margin-top: 10px; display: none">
-                <div style="margin-bottom: 6px;"><strong>Codex 额度</strong></div>
-                <div id="codex-progress-bg" style="width: 100%; height: 8px; background: #555; border-radius: 4px;">
-                    <div id="codex-progress-bar" style="height: 100%; width: 0%; background: #9c27b0; border-radius: 4px;"></div>
-                </div>
-                <div id="codex-info" style="margin-top: 4px; font-size: 12px;">N/A</div>
+        </div>
+        <div id="codex-section" style="margin-top: 10px; display: none">
+            <div style="margin-bottom: 6px;"><strong>Codex 额度</strong></div>
+            <div id="codex-progress-bg" style="width: 100%; height: 8px; background: #555; border-radius: 4px;">
+                <div id="codex-progress-bar" style="height: 100%; width: 0%; background: #9c27b0; border-radius: 4px;"></div>
             </div>
+            <div id="codex-info" style="margin-top: 4px; font-size: 12px;">N/A</div>
         </div>
         <div style="
             margin-top: 12px;
@@ -229,6 +229,9 @@
     }
     startObserverWhenReady();
 
+    let powFetched = false;
+    let codexFetched = false;
+
     // 更新difficulty指示器
     function updateDifficultyIndicator(difficulty) {
         const difficultyLevel = document.getElementById("difficulty-level");
@@ -238,6 +241,9 @@
             setIconColors("#888", "#666");
             difficultyLevel.innerText = "";
             ipQuality.innerHTML = "N/A";
+            powFetched = false;
+            const powSection = document.getElementById("pow-section");
+            if (powSection && codexFetched) powSection.style.display = "none";
             return;
         }
 
@@ -275,6 +281,9 @@
         setIconColors(color, secondaryColor);
         difficultyLevel.innerHTML = `<span style="color: ${textColor}">${level}</span>`;
         ipQuality.innerHTML = `<span style="color: ${textColor}">${qualityText}</span>`;
+        powFetched = true;
+        const powSection = document.getElementById("pow-section");
+        if (powSection) powSection.style.display = "block";
     }
 
     function setIconColors(primaryColor, secondaryColor) {
@@ -307,6 +316,12 @@
         bar.style.background = "#9c27b0";
         section.style.display = "block";
         codexResetTime = Date.now() + resetsAfter * 1000;
+        codexFetched = true;
+        if (!powFetched) {
+            setIconColors("#9c27b0", "#7b1fa2");
+            const powSection = document.getElementById("pow-section");
+            if (powSection) powSection.style.display = "none";
+        }
         updateCodexCountdown();
     }
 
