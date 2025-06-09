@@ -280,7 +280,7 @@
     const originalFetch = window.fetch;
     window.fetch = async function (resource, options = {}) {
         const requestUrl =
-            typeof resource === "string" ? resource : resource.url;
+            typeof resource === "string" ? resource : resource?.url || "";
         const requestMethod =
             typeof resource === "object" && resource.method
                 ? resource.method
