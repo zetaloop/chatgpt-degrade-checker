@@ -207,8 +207,6 @@
                 tooltip.style.visibility = "hidden";
             });
 
-        // Codex 信息
-        fetchCodexLimitIfNeeded();
     }
 
     // 创建元素
@@ -317,17 +315,6 @@
         info.innerText = info.innerText.replace(/重置.*$/, "") +
             `，重置倒计时 ${minutes}:${seconds.toString().padStart(2, "0")}`;
     }
-
-    function fetchCodexLimitIfNeeded() {
-        if (!location.pathname.startsWith("/codex")) return;
-        fetch("/backend-api/wham/tasks/rate_limit")
-            .then((r) => r.json())
-            .then((d) => {
-                updateCodexInfo(d.limit, d.remaining, d.resets_after);
-            })
-            .catch((e) => console.error("[DegradeChecker] 获取Codex额度失败", e));
-    }
-
     setInterval(updateCodexCountdown, 1000);
 
     // 拦截 fetch 请求
@@ -398,6 +385,36 @@
 
                 if (typeof responseBodyText === "string") {
                     return new Response(responseBodyText, {
+                        status: response.status,
+                        statusText: response.statusText,
+                        headers: response.headers,
+                    });
+                }
+                return response;
+            }
+        }
+
+        if (
+            requestUrl.includes("/backend-api/wham/tasks/rate_limit") &&
+            finalMethod === "GET" &&
+            response.ok
+        ) {
+            let bodyText;
+            try {
+                bodyText = await response.text();
+                const data = JSON.parse(bodyText);
+                if (location.pathname.startsWith("/codex")) {
+                    updateCodexInfo(data.limit, data.remaining, data.resets_after);
+                }
+                return new Response(bodyText, {
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: response.headers,
+                });
+            } catch (e) {
+                console.error("[DegradeChecker] 处理 Codex 响应出错:", e);
+                if (typeof bodyText === "string") {
+                    return new Response(bodyText, {
                         status: response.status,
                         statusText: response.statusText,
                         headers: response.headers,
