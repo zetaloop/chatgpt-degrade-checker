@@ -206,7 +206,6 @@
             .addEventListener("mouseleave", function () {
                 tooltip.style.visibility = "hidden";
             });
-
     }
 
     // 创建元素
@@ -329,7 +328,10 @@
         const info = document.getElementById("codex-info");
         if (!info || !codexResetTime) return;
         if (codexLimit === null || codexUsed === null) return;
-        const remainingSecs = Math.max(0, Math.floor((codexResetTime - Date.now()) / 1000));
+        const remainingSecs = Math.max(
+            0,
+            Math.floor((codexResetTime - Date.now()) / 1000)
+        );
         const minutes = Math.floor(remainingSecs / 60);
         const seconds = remainingSecs % 60;
         info.innerText = `已用 ${codexUsed}/${codexLimit}，重置倒计时 ${minutes}:${seconds
@@ -425,7 +427,11 @@
                 bodyText = await response.text();
                 const data = JSON.parse(bodyText);
                 if (location.pathname.startsWith("/codex")) {
-                    updateCodexInfo(data.limit, data.remaining, data.resets_after);
+                    updateCodexInfo(
+                        data.limit,
+                        data.remaining,
+                        data.resets_after
+                    );
                 }
                 return new Response(bodyText, {
                     status: response.status,
