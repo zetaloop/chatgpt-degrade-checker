@@ -68,7 +68,7 @@
         <div id="codex-section" style="margin-top: 10px; display: none">
             <div style="margin-bottom: 6px;"><strong>Codex 额度</strong></div>
             <div id="codex-progress-bg" style="width: 100%; height: 8px; background: #555; border-radius: 4px;">
-                <div id="codex-progress-bar" style="height: 100%; width: 0%; background: #9c27b0; border-radius: 4px;"></div>
+                <div id="codex-progress-bar" style="height: 100%; width: 0%; background: #C26FFD; border-radius: 4px;"></div>
             </div>
             <div id="codex-info" style="margin-top: 4px; font-size: 12px;">N/A</div>
         </div>
@@ -312,12 +312,12 @@
         codexUsed = limit - remaining;
         const percent = Math.max(0, Math.min(100, (codexUsed / limit) * 100));
         bar.style.width = `${percent}%`;
-        bar.style.background = "#9c27b0";
+        bar.style.background = "#C26FFD";
         section.style.display = "block";
         codexResetTime = Date.now() + resetsAfter * 1000;
         codexFetched = true;
         if (!powFetched) {
-            setIconColors("#9c27b0", "#7b1fa2");
+            setIconColors("#C26FFD", "#A855F7");
             const powSection = document.getElementById("pow-section");
             if (powSection) powSection.style.display = "none";
         }
