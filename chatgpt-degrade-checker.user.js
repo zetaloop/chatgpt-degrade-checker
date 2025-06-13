@@ -17,70 +17,77 @@
 (function () {
     "use strict";
 
-    function createElements() {
-        if (!document.body) {
-            requestAnimationFrame(createElements);
-            return;
-        }
+    function applyStyles(el, styles) {
+        Object.assign(el.style, styles);
+    }
 
-        if (document.getElementById("degrade-checker-displayBox")) return;
+    const styleMap = {
+        displayBox: {
+            position: "fixed",
+            top: "50%",
+            right: "20px",
+            transform: "translateY(-50%)",
+            width: "220px",
+            padding: "10px",
+            backgroundColor: "rgba(0, 0, 0, 0.7)",
+            color: "#fff",
+            fontSize: "14px",
+            borderRadius: "8px",
+            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.3)",
+            zIndex: "10000",
+            transition: "all 0.3s ease",
+            display: "none",
+        },
+        indicator: {
+            position: "fixed",
+            top: "50%",
+            right: "20px",
+            transform: "translateY(-50%)",
+            width: "32px",
+            height: "32px",
+            backgroundColor: "transparent",
+            borderRadius: "50%",
+            cursor: "pointer",
+            zIndex: "10000",
+            padding: "4px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            transition: "all 0.3s ease",
+        },
+        tooltip: {
+            position: "fixed",
+            backgroundColor: "rgba(0, 0, 0, 0.8)",
+            color: "#fff",
+            padding: "8px 12px",
+            borderRadius: "5px",
+            fontSize: "12px",
+            visibility: "hidden",
+            zIndex: "10001",
+            width: "240px",
+            lineHeight: "1.4",
+            pointerEvents: "none",
+        },
+    };
 
-        // 创建显示框
-        const displayBox = document.createElement("div");
-        displayBox.id = "degrade-checker-displayBox";
-        displayBox.style.position = "fixed";
-        displayBox.style.top = "50%";
-        displayBox.style.right = "20px";
-        displayBox.style.transform = "translateY(-50%)";
-        displayBox.style.width = "220px";
-        displayBox.style.padding = "10px";
-        displayBox.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
-        displayBox.style.color = "#fff";
-        displayBox.style.fontSize = "14px";
-        displayBox.style.borderRadius = "8px";
-        displayBox.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.3)";
-        displayBox.style.zIndex = "10000";
-        displayBox.style.transition = "all 0.3s ease";
-        displayBox.style.display = "none";
-
-        displayBox.innerHTML = `
+    function createDisplayBox() {
+        const box = document.createElement("div");
+        box.id = "degrade-checker-displayBox";
+        applyStyles(box, styleMap.displayBox);
+        box.innerHTML = `
         <div id="pow-section">
             <div style="margin-bottom: 10px;">
                 <strong>PoW 信息</strong>
             </div>
             PoW难度：<span id="difficulty">N/A</span><span id="difficulty-level" style="margin-left: 3px"></span>
-            <span id="difficulty-tooltip" style="
-                cursor: pointer;
-                color: #fff;
-                font-size: 12px;
-                display: inline-block;
-                width: 14px;
-                height: 14px;
-                line-height: 14px;
-                text-align: center;
-                border-radius: 50%;
-                border: 1px solid #fff;
-                margin-left: 3px;
-            ">?</span><br>
+            <span id="difficulty-tooltip" style="cursor: pointer; color: #fff; font-size: 12px; display: inline-block; width: 14px; height: 14px; line-height: 14px; text-align: center; border-radius: 50%; border: 1px solid #fff; margin-left: 3px;">?</span><br>
             IP质量：<span id="ip-quality">N/A</span><br>
             <span id="persona-container" style="display: none">用户类型：<span id="persona">N/A</span></span>
         </div>
         <div id="codex-section" style="margin-top: 10px; display: none">
             <div style="margin-bottom: 10px;">
                 <strong>Codex 可用次数</strong>
-                <span id="codex-tooltip" style="
-                    cursor: pointer;
-                    color: #fff;
-                    font-size: 12px;
-                    display: inline-block;
-                    width: 14px;
-                    height: 14px;
-                    line-height: 14px;
-                    text-align: center;
-                    border-radius: 50%;
-                    border: 1px solid #fff;
-                    margin-left: 3px;
-                ">?</span>
+                <span id="codex-tooltip" style="cursor: pointer; color: #fff; font-size: 12px; display: inline-block; width: 14px; height: 14px; line-height: 14px; text-align: center; border-radius: 50%; border: 1px solid #fff; margin-left: 3px;">?</span>
             </div>
             已用：<span id="codex-usage">N/A</span><br>
             <div id="codex-progress-bg" style="margin-top: 8px; margin-bottom: 8px; width: 100%; height: 8px; background: #555; border-radius: 4px;">
@@ -88,39 +95,16 @@
             </div>
             重置：<span id="codex-reset-time">N/A</span>
         </div>
-        <div style="
-            margin-top: 12px;
-            padding-top: 8px;
-            border-top: 0.5px solid rgba(255, 255, 255, 0.15);
-            font-size: 10px;
-            color: rgba(255, 255, 255, 0.5);
-            text-align: center;
-            letter-spacing: 0.3px;
-        ">
+        <div style="margin-top: 12px; padding-top: 8px; border-top: 0.5px solid rgba(255, 255, 255, 0.15); font-size: 10px; color: rgba(255, 255, 255, 0.5); text-align: center; letter-spacing: 0.3px;">
             ChatGPT Degrade Checker
     </div>`;
-        document.body.appendChild(displayBox);
+        return box;
+    }
 
-        // 创建收缩状态的指示器
-        const collapsedIndicator = document.createElement("div");
-        collapsedIndicator.style.position = "fixed";
-        collapsedIndicator.style.top = "50%";
-        collapsedIndicator.style.right = "20px";
-        collapsedIndicator.style.transform = "translateY(-50%)";
-        collapsedIndicator.style.width = "32px";
-        collapsedIndicator.style.height = "32px";
-        collapsedIndicator.style.backgroundColor = "transparent";
-        collapsedIndicator.style.borderRadius = "50%";
-        collapsedIndicator.style.cursor = "pointer";
-        collapsedIndicator.style.zIndex = "10000";
-        collapsedIndicator.style.padding = "4px";
-        collapsedIndicator.style.display = "flex";
-        collapsedIndicator.style.alignItems = "center";
-        collapsedIndicator.style.justifyContent = "center";
-        collapsedIndicator.style.transition = "all 0.3s ease";
-
-        // 使用SVG作为指示器
-        collapsedIndicator.innerHTML = `
+    function createIndicator() {
+        const indicator = document.createElement("div");
+        applyStyles(indicator, styleMap.indicator);
+        indicator.innerHTML = `
     <svg id="status-icon" width="32" height="32" viewBox="0 0 64 64" style="transition: all 0.3s ease;">
         <defs>
             <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -138,88 +122,100 @@
         <g id="icon-group" filter="url(#glow)">
             <circle cx="32" cy="32" r="28" fill="url(#gradient)" stroke="#fff" stroke-width="2"/>
             <circle cx="32" cy="32" r="20" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="100">
-                <animateTransform
-                    attributeName="transform"
-                    attributeType="XML"
-                    type="rotate"
-                    from="0 32 32"
-                    to="360 32 32"
-                    dur="8s"
-                    repeatCount="indefinite"/>
+                <animateTransform attributeName="transform" attributeType="XML" type="rotate" from="0 32 32" to="360 32 32" dur="8s" repeatCount="indefinite"/>
             </circle>
             <circle cx="32" cy="32" r="12" fill="none" stroke="#fff" stroke-width="2">
-                <animate
-                    attributeName="r"
-                    values="12;14;12"
-                    dur="2s"
-                    repeatCount="indefinite"/>
+                <animate attributeName="r" values="12;14;12" dur="2s" repeatCount="indefinite"/>
             </circle>
             <circle id="center-dot" cx="32" cy="32" r="4" fill="#fff">
-                <animate
-                    attributeName="r"
-                    values="4;6;4"
-                    dur="2s"
-                    repeatCount="indefinite"/>
+                <animate attributeName="r" values="4;6;4" dur="2s" repeatCount="indefinite"/>
             </circle>
         </g>
     </svg>`;
-        document.body.appendChild(collapsedIndicator);
+        return indicator;
+    }
 
-        // 鼠标悬停事件
-        collapsedIndicator.addEventListener("mouseenter", function () {
-            displayBox.style.display = "block";
-            collapsedIndicator.style.opacity = "0";
+    function createTooltip(id, text) {
+        const tip = document.createElement("div");
+        tip.id = id;
+        tip.innerText = text;
+        applyStyles(tip, styleMap.tooltip);
+        return tip;
+    }
+
+
+function createElements() {
+    if (!document.body) {
+        requestAnimationFrame(createElements);
+        return;
+    }
+
+    if (document.getElementById("degrade-checker-displayBox")) return;
+
+    const displayBox = createDisplayBox();
+    document.body.appendChild(displayBox);
+
+    const collapsedIndicator = createIndicator();
+    document.body.appendChild(collapsedIndicator);
+
+    collapsedIndicator.addEventListener("mouseenter", function () {
+        displayBox.style.display = "block";
+        collapsedIndicator.style.opacity = "0";
+    });
+
+    displayBox.addEventListener("mouseleave", function () {
+        displayBox.style.display = "none";
+        collapsedIndicator.style.opacity = "1";
+    });
+
+    const tooltip = createTooltip(
+        "tooltip",
+        "这个值越小，代表PoW难度越高，ChatGPT认为你的IP风险越高。"
+    );
+    document.body.appendChild(tooltip);
+
+    const codexTooltip = createTooltip(
+        "codex-tooltip-box",
+        "访问 Codex 主页获取可用次数，使用一次之后才开始计时。"
+    );
+    document.body.appendChild(codexTooltip);
+
+    // 显示提示
+    document
+        .getElementById("difficulty-tooltip")
+        .addEventListener("mouseenter", function (event) {
+            tooltip.style.visibility = "visible";
+
+            const tooltipWidth = 240;
+            const mouseX = event.clientX;
+            const mouseY = event.clientY;
+
+            let leftPosition = mouseX - tooltipWidth - 10;
+            if (leftPosition < 10) {
+                leftPosition = mouseX + 20;
+            }
+
+            let topPosition = mouseY - 40;
+
+            tooltip.style.left = `${leftPosition}px`;
+            tooltip.style.top = `${topPosition}px`;
         });
 
-        displayBox.addEventListener("mouseleave", function () {
-            displayBox.style.display = "none";
-            collapsedIndicator.style.opacity = "1";
+    // 隐藏提示
+    document
+        .getElementById("difficulty-tooltip")
+        .addEventListener("mouseleave", function () {
+            tooltip.style.visibility = "hidden";
         });
 
-        // 创建提示框
-        const tooltip = document.createElement("div");
-        tooltip.id = "tooltip";
-        tooltip.innerText =
-            "这个值越小，代表PoW难度越高，ChatGPT认为你的IP风险越高。";
-        tooltip.style.position = "fixed";
-        tooltip.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
-        tooltip.style.color = "#fff";
-        tooltip.style.padding = "8px 12px";
-        tooltip.style.borderRadius = "5px";
-        tooltip.style.fontSize = "12px";
-        tooltip.style.visibility = "hidden";
-        tooltip.style.zIndex = "10001";
-        tooltip.style.width = "240px";
-        tooltip.style.lineHeight = "1.4";
-        tooltip.style.pointerEvents = "none";
-        document.body.appendChild(tooltip);
-
-        // 创建 Codex 提示框
-        const codexTooltip = document.createElement("div");
-        codexTooltip.id = "codex-tooltip-box";
-        codexTooltip.innerText =
-            "访问 Codex 主页获取可用次数，使用一次之后才开始计时。";
-        codexTooltip.style.position = "fixed";
-        codexTooltip.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
-        codexTooltip.style.color = "#fff";
-        codexTooltip.style.padding = "8px 12px";
-        codexTooltip.style.borderRadius = "5px";
-        codexTooltip.style.fontSize = "12px";
-        codexTooltip.style.visibility = "hidden";
-        codexTooltip.style.zIndex = "10001";
-        codexTooltip.style.width = "240px";
-        codexTooltip.style.lineHeight = "1.4";
-        codexTooltip.style.pointerEvents = "none";
-        document.body.appendChild(codexTooltip);
-
-        // 显示提示
-        document
-            .getElementById("difficulty-tooltip")
-            .addEventListener("mouseenter", function (event) {
-                tooltip.style.visibility = "visible";
+    // Codex 提示事件处理
+    function addCodexTooltipEvents() {
+        const codexTooltipElement = document.getElementById("codex-tooltip");
+        if (codexTooltipElement) {
+            codexTooltipElement.addEventListener("mouseenter", function (event) {
+                codexTooltip.style.visibility = "visible";
 
                 const tooltipWidth = 240;
-                const windowWidth = window.innerWidth;
                 const mouseX = event.clientX;
                 const mouseY = event.clientY;
 
@@ -230,62 +226,27 @@
 
                 let topPosition = mouseY - 40;
 
-                tooltip.style.left = `${leftPosition}px`;
-                tooltip.style.top = `${topPosition}px`;
+                codexTooltip.style.left = `${leftPosition}px`;
+                codexTooltip.style.top = `${topPosition}px`;
             });
 
-        // 隐藏提示
-        document
-            .getElementById("difficulty-tooltip")
-            .addEventListener("mouseleave", function () {
-                tooltip.style.visibility = "hidden";
+            codexTooltipElement.addEventListener("mouseleave", function () {
+                codexTooltip.style.visibility = "hidden";
             });
-
-        // Codex 提示事件处理
-        function addCodexTooltipEvents() {
-            const codexTooltipElement =
-                document.getElementById("codex-tooltip");
-            if (codexTooltipElement) {
-                codexTooltipElement.addEventListener(
-                    "mouseenter",
-                    function (event) {
-                        codexTooltip.style.visibility = "visible";
-
-                        const tooltipWidth = 240;
-                        const windowWidth = window.innerWidth;
-                        const mouseX = event.clientX;
-                        const mouseY = event.clientY;
-
-                        let leftPosition = mouseX - tooltipWidth - 10;
-                        if (leftPosition < 10) {
-                            leftPosition = mouseX + 20;
-                        }
-
-                        let topPosition = mouseY - 40;
-
-                        codexTooltip.style.left = `${leftPosition}px`;
-                        codexTooltip.style.top = `${topPosition}px`;
-                    }
-                );
-
-                codexTooltipElement.addEventListener("mouseleave", function () {
-                    codexTooltip.style.visibility = "hidden";
-                });
-            }
         }
-
-        // 延迟添加 Codex 提示事件，因为元素可能在后面动态显示
-        setTimeout(addCodexTooltipEvents, 100);
-
-        // 在 MutationObserver 中也需要重新绑定事件
-        function rebindCodexEvents() {
-            addCodexTooltipEvents();
-        }
-
-        // 暴露函数供 MutationObserver 使用
-        window.rebindCodexEvents = rebindCodexEvents;
     }
 
+    // 延迟添加 Codex 提示事件，因为元素可能在后面动态显示
+    setTimeout(addCodexTooltipEvents, 100);
+
+    // 在 MutationObserver 中也需要重新绑定事件
+    function rebindCodexEvents() {
+        addCodexTooltipEvents();
+    }
+
+    // 暴露函数供 MutationObserver 使用
+    window.rebindCodexEvents = rebindCodexEvents;
+}
     // 创建元素
     createElements();
 
