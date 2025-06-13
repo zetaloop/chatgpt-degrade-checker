@@ -180,60 +180,27 @@ function createElements() {
     );
     document.body.appendChild(codexTooltip);
 
-    // 显示提示
-    document
-        .getElementById("difficulty-tooltip")
-        .addEventListener("mouseenter", function (event) {
-            tooltip.style.visibility = "visible";
-
+    function bindTooltipEvents(triggerId, tipEl) {
+        const trigger = document.getElementById(triggerId);
+        if (!trigger) return;
+        trigger.addEventListener("mouseenter", (event) => {
+            tipEl.style.visibility = "visible";
             const tooltipWidth = 240;
-            const mouseX = event.clientX;
-            const mouseY = event.clientY;
-
-            let leftPosition = mouseX - tooltipWidth - 10;
-            if (leftPosition < 10) {
-                leftPosition = mouseX + 20;
-            }
-
-            let topPosition = mouseY - 40;
-
-            tooltip.style.left = `${leftPosition}px`;
-            tooltip.style.top = `${topPosition}px`;
+            const { clientX: mouseX, clientY: mouseY } = event;
+            let left = mouseX - tooltipWidth - 10;
+            if (left < 10) left = mouseX + 20;
+            tipEl.style.left = `${left}px`;
+            tipEl.style.top = `${mouseY - 40}px`;
         });
-
-    // 隐藏提示
-    document
-        .getElementById("difficulty-tooltip")
-        .addEventListener("mouseleave", function () {
-            tooltip.style.visibility = "hidden";
+        trigger.addEventListener("mouseleave", () => {
+            tipEl.style.visibility = "hidden";
         });
+    }
 
-    // Codex 提示事件处理
+    bindTooltipEvents("difficulty-tooltip", tooltip);
+
     function addCodexTooltipEvents() {
-        const codexTooltipElement = document.getElementById("codex-tooltip");
-        if (codexTooltipElement) {
-            codexTooltipElement.addEventListener("mouseenter", function (event) {
-                codexTooltip.style.visibility = "visible";
-
-                const tooltipWidth = 240;
-                const mouseX = event.clientX;
-                const mouseY = event.clientY;
-
-                let leftPosition = mouseX - tooltipWidth - 10;
-                if (leftPosition < 10) {
-                    leftPosition = mouseX + 20;
-                }
-
-                let topPosition = mouseY - 40;
-
-                codexTooltip.style.left = `${leftPosition}px`;
-                codexTooltip.style.top = `${topPosition}px`;
-            });
-
-            codexTooltipElement.addEventListener("mouseleave", function () {
-                codexTooltip.style.visibility = "hidden";
-            });
-        }
+        bindTooltipEvents("codex-tooltip", codexTooltip);
     }
 
     // 延迟添加 Codex 提示事件，因为元素可能在后面动态显示
@@ -251,7 +218,7 @@ function createElements() {
     createElements();
 
     // 使用 MutationObserver 观测 DOM 改动
-    const observer = new MutationObserver((mutationsList, observer) => {
+    const observer = new MutationObserver(() => {
         // 保持检测器元素
         if (!document.getElementById("degrade-checker-displayBox")) {
             createElements();
