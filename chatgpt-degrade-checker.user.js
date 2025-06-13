@@ -48,7 +48,7 @@
             <div style="margin-bottom: 10px;">
                 <strong>PoW 信息</strong>
             </div>
-            PoW难度: <span id="difficulty">N/A</span><span id="difficulty-level" style="margin-left: 3px"></span>
+            PoW难度：<span id="difficulty">N/A</span><span id="difficulty-level" style="margin-left: 3px"></span>
             <span id="difficulty-tooltip" style="
                 cursor: pointer;
                 color: #fff;
@@ -62,8 +62,8 @@
                 border: 1px solid #fff;
                 margin-left: 3px;
             ">?</span><br>
-            IP质量: <span id="ip-quality">N/A</span><br>
-            <span id="persona-container" style="display: none">用户类型: <span id="persona">N/A</span></span>
+            IP质量：<span id="ip-quality">N/A</span><br>
+            <span id="persona-container" style="display: none">用户类型：<span id="persona">N/A</span></span>
         </div>
         <div id="codex-section" style="margin-top: 10px; display: none">
             <div style="margin-bottom: 10px;">
@@ -82,11 +82,11 @@
                     margin-left: 3px;
                 ">?</span>
             </div>
-            已用: <span id="codex-usage">N/A</span><br>
+            已用：<span id="codex-usage">N/A</span><br>
             <div id="codex-progress-bg" style="margin-top: 8px; margin-bottom: 8px; width: 100%; height: 8px; background: #555; border-radius: 4px;">
                 <div id="codex-progress-bar" style="height: 100%; width: 0%; background: #C26FFD; border-radius: 4px;"></div>
             </div>
-            重置时间: <span id="codex-reset-time">N/A</span>
+            重置：<span id="codex-reset-time">N/A</span>
         </div>
         <div style="
             margin-top: 12px;
@@ -198,7 +198,7 @@
         const codexTooltip = document.createElement("div");
         codexTooltip.id = "codex-tooltip-box";
         codexTooltip.innerText =
-            "访问 Codex 主页获取可用次数。使用一次之后才开始计时。";
+            "访问 Codex 主页获取可用次数，使用一次之后才开始计时。";
         codexTooltip.style.position = "fixed";
         codexTooltip.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
         codexTooltip.style.color = "#fff";
