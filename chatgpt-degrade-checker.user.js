@@ -104,7 +104,7 @@
             text-align: center;
             letter-spacing: 0.3px;
         ">
-            ChatGPT Degrade Checker
+            ChatGPT Degrade Checker Next
     </div>`;
         document.body.appendChild(displayBox);
 
