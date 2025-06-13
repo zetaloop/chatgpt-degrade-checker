@@ -65,6 +65,13 @@
             IP质量：<span id="ip-quality">N/A</span><br>
             <span id="persona-container" style="display: none">用户类型：<span id="persona">N/A</span></span>
         </div>
+        <div id="deep-research-section" style="margin-top: 10px; display: none">
+            <div style="margin-top: 10px; margin-bottom: 10px;">
+                <strong>深度研究</strong>
+            </div>
+            剩余次数：<span id="deep-research-usage">N/A</span><br>
+            重置时间：<span id="deep-research-reset-time">N/A</span>
+        </div>
         <div id="codex-section" style="margin-top: 10px; display: none">
             <div style="margin-bottom: 10px;">
                 <strong>Codex 可用次数</strong>
@@ -462,6 +469,43 @@
     }
     setInterval(updateCodexCountdown, 1000);
 
+    // 更新深度研究次数
+    let researchRemaining = null;
+    let researchReset = null;
+    function updateDeepResearchInfo(remaining, resetAfter) {
+        const section = document.getElementById("deep-research-section");
+        const usageEl = document.getElementById("deep-research-usage");
+        const resetEl = document.getElementById("deep-research-reset-time");
+
+        if (!section || !usageEl || !resetEl) return;
+
+        if (typeof remaining !== "number") {
+            section.style.display = "none";
+            return;
+        }
+
+        researchRemaining = remaining;
+        researchReset = resetAfter || null;
+
+        section.style.display = "block";
+        if (!powFetched) {
+            section.style.marginTop = "0";
+        } else {
+            section.style.marginTop = "10px";
+        }
+
+        usageEl.innerText = `${remaining}次`;
+
+        if (researchReset) {
+            const date = new Date(researchReset);
+            resetEl.innerText = date
+                .toLocaleString("zh-CN", { hour12: false })
+                .replace(/\//g, "-");
+        } else {
+            resetEl.innerText = "N/A";
+        }
+    }
+
     // 拦截 fetch 请求
     const originalFetch = window.fetch;
     window.fetch = async function (resource, options = {}) {
@@ -530,6 +574,44 @@
 
                 if (typeof responseBodyText === "string") {
                     return new Response(responseBodyText, {
+                        status: response.status,
+                        statusText: response.statusText,
+                        headers: response.headers,
+                    });
+                }
+                return response;
+            }
+        }
+
+        if (
+            requestUrl.includes("/backend-api/conversation/init") &&
+            finalMethod === "POST" &&
+            response.ok
+        ) {
+            let bodyText;
+            try {
+                bodyText = await response.text();
+                const data = JSON.parse(bodyText);
+                const item = Array.isArray(data.limits_progress)
+                    ? data.limits_progress.find(
+                          (i) => i.feature_name === "deep_research"
+                      )
+                    : null;
+                if (item) {
+                    updateDeepResearchInfo(item.remaining, item.reset_after);
+                }
+                return new Response(bodyText, {
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: response.headers,
+                });
+            } catch (e) {
+                console.error(
+                    "[DegradeChecker] 处理 Deep Research 响应出错:",
+                    e
+                );
+                if (typeof bodyText === "string") {
+                    return new Response(bodyText, {
                         status: response.status,
                         statusText: response.statusText,
                         headers: response.headers,
