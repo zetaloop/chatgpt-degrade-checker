@@ -14,8 +14,30 @@
 // @license AGPLv3
 // ==/UserScript==
 
+
 (function () {
     "use strict";
+
+    const TOOLTIP_WIDTH = 240;
+
+    function applyStyles(el, styles) {
+        Object.assign(el.style, styles);
+    }
+
+    function bindTooltipEvents(trigger, tooltip) {
+        if (!trigger || !tooltip) return;
+        trigger.addEventListener("mouseenter", (event) => {
+            tooltip.style.visibility = "visible";
+            let left = event.clientX - TOOLTIP_WIDTH - 10;
+            if (left < 10) left = event.clientX + 20;
+            const top = event.clientY - 40;
+            tooltip.style.left = `${left}px`;
+            tooltip.style.top = `${top}px`;
+        });
+        trigger.addEventListener("mouseleave", () => {
+            tooltip.style.visibility = "hidden";
+        });
+    }
 
     function createElements() {
         if (!document.body) {
@@ -28,20 +50,22 @@
         // 创建显示框
         const displayBox = document.createElement("div");
         displayBox.id = "degrade-checker-displayBox";
-        displayBox.style.position = "fixed";
-        displayBox.style.top = "50%";
-        displayBox.style.right = "20px";
-        displayBox.style.transform = "translateY(-50%)";
-        displayBox.style.width = "220px";
-        displayBox.style.padding = "10px";
-        displayBox.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
-        displayBox.style.color = "#fff";
-        displayBox.style.fontSize = "14px";
-        displayBox.style.borderRadius = "8px";
-        displayBox.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.3)";
-        displayBox.style.zIndex = "10000";
-        displayBox.style.transition = "all 0.3s ease";
-        displayBox.style.display = "none";
+        applyStyles(displayBox, {
+            position: "fixed",
+            top: "50%",
+            right: "20px",
+            transform: "translateY(-50%)",
+            width: "220px",
+            padding: "10px",
+            backgroundColor: "rgba(0, 0, 0, 0.7)",
+            color: "#fff",
+            fontSize: "14px",
+            borderRadius: "8px",
+            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.3)",
+            zIndex: "10000",
+            transition: "all 0.3s ease",
+            display: "none",
+        });
 
         displayBox.innerHTML = `
         <div id="pow-section">
@@ -110,21 +134,23 @@
 
         // 创建收缩状态的指示器
         const collapsedIndicator = document.createElement("div");
-        collapsedIndicator.style.position = "fixed";
-        collapsedIndicator.style.top = "50%";
-        collapsedIndicator.style.right = "20px";
-        collapsedIndicator.style.transform = "translateY(-50%)";
-        collapsedIndicator.style.width = "32px";
-        collapsedIndicator.style.height = "32px";
-        collapsedIndicator.style.backgroundColor = "transparent";
-        collapsedIndicator.style.borderRadius = "50%";
-        collapsedIndicator.style.cursor = "pointer";
-        collapsedIndicator.style.zIndex = "10000";
-        collapsedIndicator.style.padding = "4px";
-        collapsedIndicator.style.display = "flex";
-        collapsedIndicator.style.alignItems = "center";
-        collapsedIndicator.style.justifyContent = "center";
-        collapsedIndicator.style.transition = "all 0.3s ease";
+        applyStyles(collapsedIndicator, {
+            position: "fixed",
+            top: "50%",
+            right: "20px",
+            transform: "translateY(-50%)",
+            width: "32px",
+            height: "32px",
+            backgroundColor: "transparent",
+            borderRadius: "50%",
+            cursor: "pointer",
+            zIndex: "10000",
+            padding: "4px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            transition: "all 0.3s ease",
+        });
 
         // 使用SVG作为指示器
         collapsedIndicator.innerHTML = `
@@ -188,17 +214,19 @@
         tooltip.id = "tooltip";
         tooltip.innerText =
             "这个值越小，代表PoW难度越高，ChatGPT认为你的IP风险越高。";
-        tooltip.style.position = "fixed";
-        tooltip.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
-        tooltip.style.color = "#fff";
-        tooltip.style.padding = "8px 12px";
-        tooltip.style.borderRadius = "5px";
-        tooltip.style.fontSize = "12px";
-        tooltip.style.visibility = "hidden";
-        tooltip.style.zIndex = "10001";
-        tooltip.style.width = "240px";
-        tooltip.style.lineHeight = "1.4";
-        tooltip.style.pointerEvents = "none";
+        applyStyles(tooltip, {
+            position: "fixed",
+            backgroundColor: "rgba(0, 0, 0, 0.8)",
+            color: "#fff",
+            padding: "8px 12px",
+            borderRadius: "5px",
+            fontSize: "12px",
+            visibility: "hidden",
+            zIndex: "10001",
+            width: `${TOOLTIP_WIDTH}px`,
+            lineHeight: "1.4",
+            pointerEvents: "none",
+        });
         document.body.appendChild(tooltip);
 
         // 创建 Codex 提示框
@@ -206,78 +234,33 @@
         codexTooltip.id = "codex-tooltip-box";
         codexTooltip.innerText =
             "访问 Codex 主页获取可用次数，使用一次之后才开始计时。";
-        codexTooltip.style.position = "fixed";
-        codexTooltip.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
-        codexTooltip.style.color = "#fff";
-        codexTooltip.style.padding = "8px 12px";
-        codexTooltip.style.borderRadius = "5px";
-        codexTooltip.style.fontSize = "12px";
-        codexTooltip.style.visibility = "hidden";
-        codexTooltip.style.zIndex = "10001";
-        codexTooltip.style.width = "240px";
-        codexTooltip.style.lineHeight = "1.4";
-        codexTooltip.style.pointerEvents = "none";
+        applyStyles(codexTooltip, {
+            position: "fixed",
+            backgroundColor: "rgba(0, 0, 0, 0.8)",
+            color: "#fff",
+            padding: "8px 12px",
+            borderRadius: "5px",
+            fontSize: "12px",
+            visibility: "hidden",
+            zIndex: "10001",
+            width: `${TOOLTIP_WIDTH}px`,
+            lineHeight: "1.4",
+            pointerEvents: "none",
+        });
         document.body.appendChild(codexTooltip);
 
-        // 显示提示
-        document
-            .getElementById("difficulty-tooltip")
-            .addEventListener("mouseenter", function (event) {
-                tooltip.style.visibility = "visible";
-
-                const tooltipWidth = 240;
-                const windowWidth = window.innerWidth;
-                const mouseX = event.clientX;
-                const mouseY = event.clientY;
-
-                let leftPosition = mouseX - tooltipWidth - 10;
-                if (leftPosition < 10) {
-                    leftPosition = mouseX + 20;
-                }
-
-                let topPosition = mouseY - 40;
-
-                tooltip.style.left = `${leftPosition}px`;
-                tooltip.style.top = `${topPosition}px`;
-            });
-
-        // 隐藏提示
-        document
-            .getElementById("difficulty-tooltip")
-            .addEventListener("mouseleave", function () {
-                tooltip.style.visibility = "hidden";
-            });
+        // 绑定提示事件
+        bindTooltipEvents(
+            document.getElementById("difficulty-tooltip"),
+            tooltip
+        );
 
         // Codex 提示事件处理
         function addCodexTooltipEvents() {
             const codexTooltipElement =
                 document.getElementById("codex-tooltip");
             if (codexTooltipElement) {
-                codexTooltipElement.addEventListener(
-                    "mouseenter",
-                    function (event) {
-                        codexTooltip.style.visibility = "visible";
-
-                        const tooltipWidth = 240;
-                        const windowWidth = window.innerWidth;
-                        const mouseX = event.clientX;
-                        const mouseY = event.clientY;
-
-                        let leftPosition = mouseX - tooltipWidth - 10;
-                        if (leftPosition < 10) {
-                            leftPosition = mouseX + 20;
-                        }
-
-                        let topPosition = mouseY - 40;
-
-                        codexTooltip.style.left = `${leftPosition}px`;
-                        codexTooltip.style.top = `${topPosition}px`;
-                    }
-                );
-
-                codexTooltipElement.addEventListener("mouseleave", function () {
-                    codexTooltip.style.visibility = "hidden";
-                });
+                bindTooltipEvents(codexTooltipElement, codexTooltip);
             }
         }
 
