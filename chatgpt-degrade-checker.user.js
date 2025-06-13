@@ -439,7 +439,7 @@
             const totalSecs = codexResetsAfter;
             const m = Math.floor(totalSecs / 60);
             const s = totalSecs % 60;
-            const staticStr = `${m}:${s.toString().padStart(2, "0")}`;
+            const staticStr = s ? `${m}分钟${s}秒` : `${m}分钟`;
             resetEl.innerText = `${staticStr}（未开始）`;
             return;
         }
@@ -452,7 +452,9 @@
             );
             const minutes = Math.floor(remainingSecs / 60);
             const seconds = remainingSecs % 60;
-            const timeStr = `${minutes}:${seconds.toString().padStart(2, "0")}`;
+            const timeStr = minute
+                ? `${minutes}分钟${seconds}秒`
+                : `${seconds}秒`;
             resetEl.innerText = timeStr;
         } else {
             resetEl.innerText = "N/A";
