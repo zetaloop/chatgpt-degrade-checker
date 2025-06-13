@@ -66,7 +66,22 @@
             <span id="persona-container" style="display: none">用户类型: <span id="persona">N/A</span></span>
         </div>
         <div id="codex-section" style="margin-top: 10px; display: none">
-            <div style="margin-bottom: 10px;"><strong>Codex 可用次数</strong></div>
+            <div style="margin-bottom: 10px;">
+                <strong>Codex 可用次数</strong>
+                <span id="codex-tooltip" style="
+                    cursor: pointer;
+                    color: #fff;
+                    font-size: 12px;
+                    display: inline-block;
+                    width: 14px;
+                    height: 14px;
+                    line-height: 14px;
+                    text-align: center;
+                    border-radius: 50%;
+                    border: 1px solid #fff;
+                    margin-left: 3px;
+                ">?</span>
+            </div>
             <div id="codex-progress-bg" style="width: 100%; height: 8px; background: #555; border-radius: 4px;">
                 <div id="codex-progress-bar" style="height: 100%; width: 0%; background: #C26FFD; border-radius: 4px;"></div>
             </div>
@@ -178,6 +193,24 @@
         tooltip.style.pointerEvents = "none";
         document.body.appendChild(tooltip);
 
+        // 创建 Codex 提示框
+        const codexTooltip = document.createElement("div");
+        codexTooltip.id = "codex-tooltip-box";
+        codexTooltip.innerText =
+            "访问 Codex 主页获取剩余可用次数。使用一次后才开始计时。";
+        codexTooltip.style.position = "fixed";
+        codexTooltip.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
+        codexTooltip.style.color = "#fff";
+        codexTooltip.style.padding = "8px 12px";
+        codexTooltip.style.borderRadius = "5px";
+        codexTooltip.style.fontSize = "12px";
+        codexTooltip.style.visibility = "hidden";
+        codexTooltip.style.zIndex = "10001";
+        codexTooltip.style.width = "240px";
+        codexTooltip.style.lineHeight = "1.4";
+        codexTooltip.style.pointerEvents = "none";
+        document.body.appendChild(codexTooltip);
+
         // 显示提示
         document
             .getElementById("difficulty-tooltip")
@@ -206,6 +239,50 @@
             .addEventListener("mouseleave", function () {
                 tooltip.style.visibility = "hidden";
             });
+
+        // Codex 提示事件处理
+        function addCodexTooltipEvents() {
+            const codexTooltipElement =
+                document.getElementById("codex-tooltip");
+            if (codexTooltipElement) {
+                codexTooltipElement.addEventListener(
+                    "mouseenter",
+                    function (event) {
+                        codexTooltip.style.visibility = "visible";
+
+                        const tooltipWidth = 240;
+                        const windowWidth = window.innerWidth;
+                        const mouseX = event.clientX;
+                        const mouseY = event.clientY;
+
+                        let leftPosition = mouseX - tooltipWidth - 10;
+                        if (leftPosition < 10) {
+                            leftPosition = mouseX + 20;
+                        }
+
+                        let topPosition = mouseY - 40;
+
+                        codexTooltip.style.left = `${leftPosition}px`;
+                        codexTooltip.style.top = `${topPosition}px`;
+                    }
+                );
+
+                codexTooltipElement.addEventListener("mouseleave", function () {
+                    codexTooltip.style.visibility = "hidden";
+                });
+            }
+        }
+
+        // 延迟添加 Codex 提示事件，因为元素可能在后面动态显示
+        setTimeout(addCodexTooltipEvents, 100);
+
+        // 在 MutationObserver 中也需要重新绑定事件
+        function rebindCodexEvents() {
+            addCodexTooltipEvents();
+        }
+
+        // 暴露函数供 MutationObserver 使用
+        window.rebindCodexEvents = rebindCodexEvents;
     }
 
     // 创建元素
@@ -216,6 +293,10 @@
         // 保持检测器元素
         if (!document.getElementById("degrade-checker-displayBox")) {
             createElements();
+        }
+        // 重新绑定 Codex 事件
+        if (window.rebindCodexEvents) {
+            window.rebindCodexEvents();
         }
     });
 
@@ -297,6 +378,7 @@
     let codexResetTime = null;
     let codexLimit = null;
     let codexUsed = null;
+    let codexResetsAfter = null;
     function updateCodexInfo(limit, remaining, resetsAfter) {
         const section = document.getElementById("codex-section");
         const bar = document.getElementById("codex-progress-bar");
@@ -310,6 +392,7 @@
 
         codexLimit = limit;
         codexUsed = limit - (remaining + 1);
+        codexResetsAfter = resetsAfter;
         const percent = Math.max(0, Math.min(100, (codexUsed / limit) * 100));
         bar.style.width = `${percent}%`;
         bar.style.background = "#C26FFD";
@@ -319,7 +402,13 @@
         } else {
             section.style.marginTop = "10px";
         }
-        codexResetTime = Date.now() + resetsAfter * 1000;
+
+        if (codexUsed > 0) {
+            codexResetTime = Date.now() + resetsAfter * 1000;
+        } else {
+            codexResetTime = null;
+        }
+
         codexFetched = true;
         if (!powFetched) {
             setIconColors("#C26FFD", "#A855F7");
@@ -331,17 +420,28 @@
 
     function updateCodexCountdown() {
         const info = document.getElementById("codex-info");
-        if (!info || !codexResetTime) return;
+        if (!info) return;
         if (codexLimit === null || codexUsed === null) return;
+
+        // 未使用时静态显示 resetsAfter 时间
+        if (codexUsed === 0 && codexResetsAfter !== null) {
+            const totalSecs = codexResetsAfter;
+            const m = Math.floor(totalSecs / 60);
+            const s = totalSecs % 60;
+            const staticStr = `${m}:${s.toString().padStart(2, "0")}`;
+            info.innerText = `已用 ${codexUsed}/${codexLimit}，重置时间 ${staticStr}（未开始）`;
+            return;
+        }
+        // 已使用后动态倒计时
+        if (!codexResetTime) return;
         const remainingSecs = Math.max(
             0,
             Math.floor((codexResetTime - Date.now()) / 1000)
         );
         const minutes = Math.floor(remainingSecs / 60);
         const seconds = remainingSecs % 60;
-        info.innerText = `已用 ${codexUsed}/${codexLimit}，重置倒计时 ${minutes}:${seconds
-            .toString()
-            .padStart(2, "0")}`;
+        const timeStr = `${minutes}:${seconds.toString().padStart(2, "0")}`;
+        info.innerText = `已用 ${codexUsed}/${codexLimit}，重置时间 ${timeStr}`;
     }
     setInterval(updateCodexCountdown, 1000);
 
