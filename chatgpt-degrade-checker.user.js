@@ -452,7 +452,7 @@
             );
             const minutes = Math.floor(remainingSecs / 60);
             const seconds = remainingSecs % 60;
-            const timeStr = minute
+            const timeStr = minutes
                 ? `${minutes}分钟${seconds}秒`
                 : `${seconds}秒`;
             resetEl.innerText = timeStr;
