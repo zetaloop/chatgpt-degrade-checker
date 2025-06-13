@@ -89,11 +89,11 @@
                     margin-left: 3px;
                 ">?</span>
             </div>
-            已用：<span id="codex-usage">N/A</span><br>
+            已用次数：<span id="codex-usage">N/A</span><br>
             <div id="codex-progress-bg" style="margin-top: 8px; margin-bottom: 8px; width: 100%; height: 8px; background: #555; border-radius: 4px;">
                 <div id="codex-progress-bar" style="height: 100%; width: 0%; background: #C26FFD; border-radius: 4px;"></div>
             </div>
-            重置：<span id="codex-reset-time">N/A</span>
+            重置时间：<span id="codex-reset-time">N/A</span>
         </div>
         <div style="
             margin-top: 12px;
@@ -104,7 +104,7 @@
             text-align: center;
             letter-spacing: 0.3px;
         ">
-            ChatGPT Degrade Checker Next
+            ChatGPT Checker Next
     </div>`;
         document.body.appendChild(displayBox);
 
