@@ -309,7 +309,7 @@
         }
 
         codexLimit = limit;
-        codexUsed = limit - remaining;
+        codexUsed = limit - (remaining + 1);
         const percent = Math.max(0, Math.min(100, (codexUsed / limit) * 100));
         bar.style.width = `${percent}%`;
         bar.style.background = "#C26FFD";
