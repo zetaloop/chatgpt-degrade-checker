@@ -66,7 +66,7 @@
             <span id="persona-container" style="display: none">用户类型: <span id="persona">N/A</span></span>
         </div>
         <div id="codex-section" style="margin-top: 10px; display: none">
-            <div style="margin-bottom: 10px;"><strong>Codex 额度</strong></div>
+            <div style="margin-bottom: 10px;"><strong>Codex 可用次数</strong></div>
             <div id="codex-progress-bg" style="width: 100%; height: 8px; background: #555; border-radius: 4px;">
                 <div id="codex-progress-bar" style="height: 100%; width: 0%; background: #C26FFD; border-radius: 4px;"></div>
             </div>
@@ -293,7 +293,7 @@
         `;
     }
 
-    // 更新 Codex 额度进度条
+    // 更新 Codex 可用次数进度条
     let codexResetTime = null;
     let codexLimit = null;
     let codexUsed = null;
