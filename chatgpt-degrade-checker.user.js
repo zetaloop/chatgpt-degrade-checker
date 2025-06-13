@@ -82,10 +82,11 @@
                     margin-left: 3px;
                 ">?</span>
             </div>
-            <div id="codex-progress-bg" style="width: 100%; height: 8px; background: #555; border-radius: 4px;">
+            已用: <span id="codex-usage">N/A</span><br>
+            <div id="codex-progress-bg" style="margin-top: 8px; margin-bottom: 8px; width: 100%; height: 8px; background: #555; border-radius: 4px;">
                 <div id="codex-progress-bar" style="height: 100%; width: 0%; background: #C26FFD; border-radius: 4px;"></div>
             </div>
-            <div id="codex-info" style="margin-top: 4px; font-size: 12px;">N/A</div>
+            重置时间: <span id="codex-reset-time">N/A</span>
         </div>
         <div style="
             margin-top: 12px;
@@ -197,7 +198,7 @@
         const codexTooltip = document.createElement("div");
         codexTooltip.id = "codex-tooltip-box";
         codexTooltip.innerText =
-            "访问 Codex 主页获取剩余可用次数。使用一次后才开始计时。";
+            "访问 Codex 主页获取可用次数。使用一次之后才开始计时。";
         codexTooltip.style.position = "fixed";
         codexTooltip.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
         codexTooltip.style.color = "#fff";
@@ -382,8 +383,10 @@
     function updateCodexInfo(limit, remaining, resetsAfter) {
         const section = document.getElementById("codex-section");
         const bar = document.getElementById("codex-progress-bar");
-        const info = document.getElementById("codex-info");
-        if (!section || !bar || !info) return;
+        const usageEl = document.getElementById("codex-usage");
+        const resetEl = document.getElementById("codex-reset-time");
+
+        if (!section || !bar || !usageEl || !resetEl) return;
 
         if (typeof limit !== "number" || typeof remaining !== "number") {
             section.style.display = "none";
@@ -419,9 +422,17 @@
     }
 
     function updateCodexCountdown() {
-        const info = document.getElementById("codex-info");
-        if (!info) return;
-        if (codexLimit === null || codexUsed === null) return;
+        const usageEl = document.getElementById("codex-usage");
+        const resetEl = document.getElementById("codex-reset-time");
+
+        if (!usageEl || !resetEl) return;
+        if (codexLimit === null || codexUsed === null) {
+            usageEl.innerText = "N/A";
+            resetEl.innerText = "N/A";
+            return;
+        }
+
+        usageEl.innerText = `${codexUsed}/${codexLimit}`;
 
         // 未使用时静态显示 resetsAfter 时间
         if (codexUsed === 0 && codexResetsAfter !== null) {
@@ -429,19 +440,23 @@
             const m = Math.floor(totalSecs / 60);
             const s = totalSecs % 60;
             const staticStr = `${m}:${s.toString().padStart(2, "0")}`;
-            info.innerText = `已用 ${codexUsed}/${codexLimit}，重置时间 ${staticStr}（未开始）`;
+            resetEl.innerText = `${staticStr}（未开始）`;
             return;
         }
+
         // 已使用后动态倒计时
-        if (!codexResetTime) return;
-        const remainingSecs = Math.max(
-            0,
-            Math.floor((codexResetTime - Date.now()) / 1000)
-        );
-        const minutes = Math.floor(remainingSecs / 60);
-        const seconds = remainingSecs % 60;
-        const timeStr = `${minutes}:${seconds.toString().padStart(2, "0")}`;
-        info.innerText = `已用 ${codexUsed}/${codexLimit}，重置时间 ${timeStr}`;
+        if (codexResetTime) {
+            const remainingSecs = Math.max(
+                0,
+                Math.floor((codexResetTime - Date.now()) / 1000)
+            );
+            const minutes = Math.floor(remainingSecs / 60);
+            const seconds = remainingSecs % 60;
+            const timeStr = `${minutes}:${seconds.toString().padStart(2, "0")}`;
+            resetEl.innerText = timeStr;
+        } else {
+            resetEl.innerText = "N/A";
+        }
     }
     setInterval(updateCodexCountdown, 1000);
 
